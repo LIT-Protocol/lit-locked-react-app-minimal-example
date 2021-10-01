@@ -1,0 +1,16 @@
+{
+  "name": "lit-locked-react-app-minimal-example",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "startDev": "nodemon server.js",
+    "heroku-postbuild": "./build.sh"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.5",
+    "express": "^4.17.1",
+    "lit-js-sdk": "^1.1.74"
+  }
+}
