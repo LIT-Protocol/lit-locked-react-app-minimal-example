@@ -9,7 +9,16 @@ var cookieParser = require("cookie-parser");
 app.listen(port, () => console.log(`Listening on port ${port}`)); //Line 6
 
 function checkUser(req, res, next) {
+  // always permit example.html requests to bypass authentication
+  // because it represents a login page
+  if (req.url === "/example.html") {
+    next();
+    return;
+  }
+
   const jwt = req.query?.jwt || req.cookies?.jwt;
+
+  console.log("jwt is ", jwt);
 
   if (!jwt) {
     res.status(401).send("Unauthorized");
@@ -18,8 +27,8 @@ function checkUser(req, res, next) {
   const { verified, header, payload } = LitJsSdk.verifyJwt({ jwt });
   if (
     !verified ||
-    payload.baseUrl !== "litognftcontent.litgateway.com" ||
-    payload.path !== "/" ||
+    //payload.baseUrl !== "litognftcontent.litgateway.com" || // Uncomment this and add your own URL that you are protecting
+    //payload.path !== "/" || // Uncomment this and add your own URL Path that you are protecting
     payload.orgId !== "" ||
     payload.role !== "" ||
     payload.extraData !== ""
@@ -32,8 +41,15 @@ function checkUser(req, res, next) {
   res.cookie("jwt", jwt, {
     secure: process.env.NODE_ENV !== "development",
     httpOnly: true,
-    sameSite: "none",
+    sameSite: "lax",
   });
+
+  if (req.query?.jwt) {
+    const newUrl = req.originalUrl.replace(/\?jwt=.*/, "");
+    console.log("redirecting to ", newUrl);
+    // redirect to strip the jwt so the user can't just copy / paste this url to share this website
+    res.redirect(newUrl);
+  }
 
   next();
 }
@@ -41,4 +57,5 @@ function checkUser(req, res, next) {
 // Set up the middleware stack
 app.use(cookieParser());
 app.use(checkUser);
+app.use("/example.html", express.static(path.join(__dirname, "example.html")));
 app.use("/", express.static(path.join(__dirname, "client/build")));
