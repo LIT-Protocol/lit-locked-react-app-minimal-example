@@ -11,6 +11,6 @@
   "dependencies": {
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
-    "lit-js-sdk": "^1.1.74"
+    "@lit-protocol/lit-node-client": "^2.1.159"
   }
 }

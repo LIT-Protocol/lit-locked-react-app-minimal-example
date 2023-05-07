@@ -1,12 +1,30 @@
 const express = require("express");
-const LitJsSdk = require("lit-js-sdk");
+const LitJsSdk = require("@lit-protocol/lit-node-client");
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5001;
 const path = require("path");
 var cookieParser = require("cookie-parser");
 
 // This displays message that the server running and listening to specified port
 app.listen(port, () => console.log(`Listening on port ${port}`)); //Line 6
+
+function decode(input) {
+  // Replace non-url compatible chars with base64 standard chars
+  input = input
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
+
+  // Pad out with standard base64 required padding characters
+  var pad = input.length % 4;
+  if(pad) {
+    if(pad === 1) {
+      throw new Error('InvalidLengthError: Input base64url string is the wrong length to determine padding');
+    }
+    input += new Array(5-pad).join('=');
+  }
+
+  return input;
+}
 
 function checkUser(req, res, next) {
   // always permit example.html requests to bypass authentication
@@ -16,7 +34,7 @@ function checkUser(req, res, next) {
     return;
   }
 
-  const jwt = req.query?.jwt || req.cookies?.jwt;
+  let jwt = req.query?.jwt || req.cookies?.jwt;
 
   console.log("jwt is ", jwt);
 
@@ -24,6 +42,9 @@ function checkUser(req, res, next) {
     res.status(401).send("Unauthorized");
     return;
   }
+  
+  jwt = decode(jwt);
+
   const { verified, header, payload } = LitJsSdk.verifyJwt({ jwt });
   if (
     !verified ||

@@ -5,6 +5,15 @@
       onload="LitJsSdk.litJsSdkLoadedInALIT()"
       src="https://jscdn.litgateway.com/index.web.js"
     ></script>
+    <script
+      onload="async () => {
+        var litNodeClient = new LitJsSdk_litNodeClient.LitNodeClient();
+        await litNodeClient.connect();
+        window.litNodeClient = litNodeClient;
+      }"
+      src="https://cdn.jsdelivr.net/npm/@lit-protocol/lit-node-client-vanilla/lit-node-client.js"
+    >
+    </script>
     <script>
       async function mintNft() {
         document.getElementById("mintingStatus").innerText =
@@ -91,7 +100,7 @@
     <select id="selectedChain">
       <option value="fantom" selected>Fantom</option>
       <option value="ethereum">Ethereum</option>
-      <option value="polygon">Polygon</option>
+      <option value="mumbai">Polygon</option>
       <option value="xdai">xDai</option>
     </select>
     <br />
@@ -123,3 +132,4 @@
     <br />
   </body>
 </html>
+
